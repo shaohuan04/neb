@@ -1,5 +1,20 @@
+import json
+from pathlib import Path
+
 import joblib
+
 from .rail_features import extract_rail_features
+
+
+def load_metadata(model_path):
+    meta_path = Path(str(model_path)).with_name(Path(model_path).stem + "_meta.json")
+    if not meta_path.exists():
+        return None
+    try:
+        return json.loads(meta_path.read_text())
+    except (json.JSONDecodeError, OSError):
+        return None
+
 
 def predict_rail_file(df, model_path):
     model = joblib.load(model_path)

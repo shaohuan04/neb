@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+
+# Trained artifacts and raw data are generated/local, not committed.
+models/*.joblib
+models/*.json
+data/
+*.csv.bak
+
+# Don't commit the raw competition dataset.
+Train/
+Test/
+Train_Labels.csv
