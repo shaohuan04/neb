@@ -71,10 +71,18 @@ def benchmark_models(X, y, cv):
 
 
 def feature_importances(model, feature_names, top_n=20):
+    """Works for both tree ensembles (feature_importances_) and linear
+    models (coef_, one row per class for multi-class) so the app's
+    explainability panel isn't silently empty when a linear model wins
+    the benchmark.
+    """
     estimator = model.steps[-1][1] if hasattr(model, "steps") else model
-    if not hasattr(estimator, "feature_importances_"):
+    if hasattr(estimator, "feature_importances_"):
+        importances = estimator.feature_importances_
+    elif hasattr(estimator, "coef_"):
+        importances = np.mean(np.abs(estimator.coef_), axis=0)
+    else:
         return []
-    importances = estimator.feature_importances_
     order = np.argsort(importances)[::-1][:top_n]
     return [{"feature": feature_names[i], "importance": float(importances[i])} for i in order]
 
