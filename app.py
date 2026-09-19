@@ -143,6 +143,16 @@ def fact_card(label, value, sub=None):
     )
 
 
+st.session_state.setdefault("batch_key", 0)
+st.session_state.setdefault("batch_out", None)
+
+
+def clear_batch():
+    """Drop batch results and reset the uploader to an empty state."""
+    st.session_state["batch_out"] = None
+    st.session_state["batch_key"] += 1
+
+
 def validate(df):
     return df.shape[1] >= REQUIRED_COLUMNS and df.shape[0] > 0
 
@@ -317,9 +327,18 @@ section("02", "Batch analysis", "Run every held-out file at once and export the 
 
 b_left, b_right = st.columns([5, 7], gap="large")
 with b_left:
-    files = st.file_uploader("Upload Rail CSV files", type=["csv"], accept_multiple_files=True, key="batch")
-    run_batch = st.button("Analyse all recordings", type="primary", use_container_width=True,
-                          disabled=not (files and MODEL_PATH.exists()))
+    # The uploader's key carries a counter: bumping it re-instantiates the
+    # widget empty, which is the only reliable way to clear an already-
+    # selected file list in Streamlit.
+    files = st.file_uploader("Upload Rail CSV files", type=["csv"], accept_multiple_files=True,
+                             key=f"batch_{st.session_state['batch_key']}")
+    ba, bc = st.columns([2, 1])
+    with ba:
+        run_batch = st.button("Analyse all recordings", type="primary", use_container_width=True,
+                              disabled=not (files and MODEL_PATH.exists()))
+    with bc:
+        st.button("Clear all", use_container_width=True, on_click=clear_batch,
+                  disabled=not (files or st.session_state.get("batch_out") is not None))
     if files:
         st.caption(f"{len(files)} file(s) selected")
     if files and not MODEL_PATH.exists():
