@@ -87,6 +87,34 @@ def feature_importances(model, feature_names, top_n=20):
     return [{"feature": feature_names[i], "importance": float(importances[i])} for i in order]
 
 
+SEVERITY_FEATURES = ["side1_rms", "side2_rms", "side_rms_ratio", "side_std_ratio", "side_peak_ratio"]
+
+
+def healthy_baselines(X, y):
+    """Percentile spread of key indicators across the *Normal* files only.
+
+    The app grades a new recording against these, so it can say "higher than
+    97% of healthy recordings" instead of showing a bare number the operator
+    has no reference point for.
+    """
+    healthy = X[y == "Normal"]
+    if healthy.empty:
+        return {}
+    out = {}
+    for feat in SEVERITY_FEATURES:
+        if feat not in healthy.columns:
+            continue
+        values = healthy[feat].astype(float)
+        out[feat] = {
+            "p50": float(values.quantile(0.50)),
+            "p90": float(values.quantile(0.90)),
+            "p97": float(values.quantile(0.97)),
+            "p99": float(values.quantile(0.99)),
+            "max": float(values.max()),
+        }
+    return out
+
+
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--train-dir", required=True)
@@ -116,6 +144,7 @@ def main():
         "cv_scores_macro_f1": scores,
         "feature_names": list(X.columns),
         "top_feature_importances": feature_importances(best_model, list(X.columns)),
+        "healthy_baselines": healthy_baselines(X, y),
     }
     Path(a.meta_output).write_text(json.dumps(meta, indent=2))
     print(f"Saved model to {a.output} and metadata to {a.meta_output}")
