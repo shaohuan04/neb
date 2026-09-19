@@ -4,8 +4,7 @@ NebulaX Train Condition Monitoring hackathon submission app.
 
 ## Current scope
 
-- **Rail Corrugation** — fully implemented: feature extraction, model training/benchmarking, and a Streamlit app (single-file diagnosis + batch inference producing `rail_predictions.csv`).
-- **Door / ACV / SHM** — staged in the app's subsystem navigation as "coming soon" placeholders, not yet wired to data or models. Each names exactly what's needed to activate it (data folder + a `src/<name>_features.py` + `training/train_<name>.py`), so adding a subsystem later doesn't require restructuring the app.
+Rail Corrugation only: feature extraction, model training/benchmarking, and a Streamlit app (single-file diagnosis + batch inference producing `rail_predictions.csv`).
 
 ## Rail Corrugation — schema (verified against `Rail_Corrugation_Info_Kit.md`)
 
