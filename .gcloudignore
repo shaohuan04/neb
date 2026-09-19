@@ -1,0 +1,12 @@
+# Without this file, gcloud falls back to .gitignore when uploading source --
+# and .gitignore excludes models/*.joblib, which the deployed app needs.
+# This file must therefore exist and must NOT exclude models/.
+.git
+.gitignore
+__pycache__/
+*.pyc
+.pytest_cache/
+tests/
+requirements-dev.txt
+rail_predictions.csv
+*.zip
